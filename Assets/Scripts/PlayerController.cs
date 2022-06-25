@@ -43,18 +43,21 @@ public class PlayerController : MonoBehaviour, IDeadly, ICurable
 
     void PlayerMovement()
     {
-        Ray rayCamera = Camera.main.ScreenPointToRay(Input.mousePosition);
-        Plane plane = new Plane(Vector3.up, playerGun.transform.position);
-
-        float colliderDistance;
-
-        if (plane.Raycast(rayCamera, out colliderDistance))
+        if (Camera.current != null)
         {
-            Vector3 colliderLocal = rayCamera.GetPoint(colliderDistance);
-            colliderLocal.y = 0;
+            Ray rayCamera = Camera.current.ScreenPointToRay(Input.mousePosition);
+            Plane plane = new Plane(Vector3.up, playerGun.transform.position);
 
-            Vector3 localLook = colliderLocal - transform.position;
-            myMovement.Rotation(localLook);
+            float colliderDistance;
+
+            if (plane.Raycast(rayCamera, out colliderDistance))
+            {
+                Vector3 colliderLocal = rayCamera.GetPoint(colliderDistance);
+                colliderLocal.y = 0;
+
+                Vector3 localLook = colliderLocal - transform.position;
+                myMovement.Rotation(localLook);
+            }
         }
     }
 

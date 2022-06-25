@@ -6,7 +6,9 @@ public class Constants : MonoBehaviour
     public const string TAG_ENEMY = "Enemy";
     public const string TAG_PLAYER = "Player";
     public const string TAG_BOSS = "Boss";
-
+    public const string TAG_CAMERA_MAIN = "CameraMain";
+    public const string TAG_CAMERA_DEBUG = "CameraDebug";
+    
     //INPUTs
     public const string INPUT_MOUSE_LEFT = "Fire1";
     

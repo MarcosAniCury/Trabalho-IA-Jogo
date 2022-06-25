@@ -24,10 +24,9 @@ public class BossController : MonoBehaviour, IDeadly
         myMovement = GetComponent<MovementCharacter>();
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
         Vector3 playerPosition = player.position;
-        agent.SetDestination(playerPosition);
         myAnimation.Walk(agent.velocity.magnitude);
 
         if (agent.hasPath)

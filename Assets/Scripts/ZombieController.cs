@@ -30,7 +30,7 @@ public class ZombieController : MonoBehaviour, IDeadly
         myMovement = GetComponent<MovementCharacter>(); 
         myAnimation = GetComponent<AnimationCharacter>();
         myStatus = GetComponent<Status>();
-        gameInterface = GameObject.FindObjectOfType(typeof(UIController)) as UIController;
+        gameInterface = FindObjectOfType(typeof(UIController)) as UIController;
 
         SetZombieRandom();
     }
