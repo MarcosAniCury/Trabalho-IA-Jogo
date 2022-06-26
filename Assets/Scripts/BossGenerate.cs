@@ -7,7 +7,6 @@ public class BossGenerate : MonoBehaviour
     
     //Private vars
     private float timeToNextGenerate = 0;
-    private bool tst = true;
 
     private void Start()
     {
@@ -16,9 +15,8 @@ public class BossGenerate : MonoBehaviour
 
     private void Update()
     {
-        if (tst || Time.timeSinceLevelLoad > timeToNextGenerate)
+        if (Time.timeSinceLevelLoad > timeToNextGenerate)
         {
-            tst = false;
             Instantiate(BossPrefab, transform.position, Quaternion.identity);
             timeToNextGenerate = Time.timeSinceLevelLoad + Constants.BOSS_GENERATE_TIME_BETWEEN_GENERATE;
         }
