@@ -7,6 +7,7 @@ public class debugController : MonoBehaviour
 
     //public vars
     public Text debug;
+    public GameObject circleDebug;
 
     //private vars
     private bool debugControll;
@@ -25,6 +26,7 @@ public class debugController : MonoBehaviour
             debugControll = !debugControll;
 
             debug.gameObject.SetActive(debugControll);
+            circleDebug.SetActive(debugControll);
             if (debugControll)
             {
                 cameraController.tradeCamera(Constants.TAG_CAMERA_DEBUG);
@@ -34,5 +36,10 @@ public class debugController : MonoBehaviour
                 cameraController.GetComponent<CameraController>().tradeCamera(Constants.TAG_CAMERA_MAIN);
             }
         }
+    }
+
+    public bool getDebugControll()
+    {
+        return debugControll;
     }
 }

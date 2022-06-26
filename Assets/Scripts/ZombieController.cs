@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class ZombieController : MonoBehaviour, IDeadly
 {
@@ -15,6 +16,7 @@ public class ZombieController : MonoBehaviour, IDeadly
     float contWander;
     Vector3 randomPositionWander;
     Vector3 direction;
+    debugController debugController;
 
     //Components
     PlayerController playerController;
@@ -22,9 +24,28 @@ public class ZombieController : MonoBehaviour, IDeadly
     AnimationCharacter myAnimation;
     Status myStatus;
     UIController gameInterface;
+    GameObject lineToPlayer;
+    LineRenderer lineObjectToPlayer;
+    GameObject lineToPoint;
+    LineRenderer lineObjectToPoint;
 
-    void Start() 
+    void Start()
     {
+        lineToPoint = new GameObject();
+        lineObjectToPoint = lineToPoint.AddComponent<LineRenderer>();
+        lineObjectToPoint.material = new Material(Shader.Find("Sprites/Default"));
+        lineObjectToPoint.startColor = Color.red;
+        lineObjectToPoint.endColor = Color.red;
+        lineToPoint.SetActive(false);
+
+        lineToPlayer = new GameObject();
+        lineObjectToPlayer = lineToPlayer.AddComponent<LineRenderer>();
+        lineObjectToPlayer.material = new Material(Shader.Find("Sprites/Default"));
+        lineObjectToPlayer.startColor = Color.green;
+        lineObjectToPlayer.endColor = Color.green;
+        lineToPlayer.SetActive(false);
+        
+        debugController = FindObjectOfType(typeof(debugController)) as debugController;
         player = GameObject.FindWithTag(Constants.TAG_PLAYER);
         playerController = player.GetComponent<PlayerController>(); 
         myMovement = GetComponent<MovementCharacter>(); 
@@ -45,15 +66,34 @@ public class ZombieController : MonoBehaviour, IDeadly
         if (distanceBetweenZombiAndPlayer > Constants.ZOMBIE_DISTANCE_TO_WANDER) {
             Wander();
             attacking = false;
+            lineToPlayer.SetActive(false);
         } else if (distanceBetweenZombiAndPlayer > Constants.ZOMBIE_DISTANCE_TO_CHASE) {
             direction = player.transform.position - transform.position;
             myMovement.Rotation(direction);
             myMovement.Movement(direction.normalized, myStatus.Speed);
             attacking = false;
-        } 
-
+            lineToPoint.SetActive(false);
+            
+            bool isDebug = debugController.getDebugControll(); 
+            
+            lineToPlayer.SetActive(isDebug);
+            
+            if (isDebug)
+            {
+                lineObjectToPlayer.SetPosition(0, transform.position);
+                lineObjectToPlayer.SetPosition(1, player.transform.position);
+            }
+        }
+        else
+        {
+            lineToPlayer.SetActive(false);
+            lineToPoint.SetActive(false);
+        }
+        
         myAnimation.Walk(direction.magnitude);
         myAnimation.Attack(attacking);
+        
+        transform.GetChild(transform.childCount - 1).gameObject.SetActive(debugController.getDebugControll());
     }
 
     void Wander()
@@ -71,8 +111,18 @@ public class ZombieController : MonoBehaviour, IDeadly
         bool isProxDistance = 
             Vector3.Distance(transform.position, randomPositionWander) <=
             Constants.ZOMBIE_ERROR_RATE_DISTANCE;
+        
+        bool isDebug = debugController.getDebugControll(); 
+            
+        lineToPoint.SetActive(isDebug);
+            
+        if (isDebug) {
+            lineObjectToPoint.SetPosition(0, transform.position);
+            lineObjectToPoint.SetPosition(1, randomPositionWander);
+        }
 
         if (!isProxDistance) {
+
             direction = randomPositionWander - transform.position;
             myMovement.Rotation(direction);
             speedMovement = myStatus.Speed;
@@ -97,7 +147,7 @@ public class ZombieController : MonoBehaviour, IDeadly
 
     void SetZombieRandom()
     {
-        int generateTypeZombie = Random.Range(1, transform.childCount);
+        int generateTypeZombie = Random.Range(1, transform.childCount - 1);
         transform.GetChild(generateTypeZombie).gameObject.SetActive(true);
     }
 
@@ -111,6 +161,9 @@ public class ZombieController : MonoBehaviour, IDeadly
 
     public void Dead()
     {
+        Destroy(lineToPlayer);
+        Destroy(lineToPoint);
+
         int timeToZombieDestroy = 2;
         Destroy(gameObject, timeToZombieDestroy);
 

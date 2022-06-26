@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -30,17 +31,21 @@ public class BossController : MonoBehaviour, IDeadly
     //Public vars
     public int DamageCause = 40;
     public GameObject MedKitPrefab;
-    
+
     //COMPONENTs
     Transform player;
     Status myStatus;
     AnimationCharacter myAnimation;
     MovementCharacter myMovement;
+    List<GameObject> CubePath;
+    debugController debugController;
 
     private Queue<Vector3> direction;
 
     private void Start()
     {
+        debugController = FindObjectOfType(typeof(debugController)) as debugController;
+        CubePath = new List<GameObject>();
         direction = new Queue<Vector3>();
         player = GameObject.FindWithTag(Constants.TAG_PLAYER).transform;
         myStatus = GetComponent<Status>();
@@ -50,11 +55,41 @@ public class BossController : MonoBehaviour, IDeadly
 
     private void FixedUpdate()
     {
+        if (debugController.getDebugControll())
+        {
+            if (CubePath.Count > 0)
+            {
+                CubePath.ForEach(cube => cube.SetActive(true));
+            }
+        }
+        else
+        {
+            if (CubePath.Count > 0) {
+                CubePath.ForEach(cube => cube.SetActive(false));
+            }
+        }
+        
         if (direction.Count > 0)
         {
-            if (Vector3.Distance(direction.Peek(), transform.position) == 0)
-                direction.Dequeue();
-            transform.Translate(direction.Peek() * Time.deltaTime);
+            Vector3 directionToGo = direction.Peek();
+            if (Vector3.Distance(directionToGo, transform.position) <= 3)
+            {
+                Vector3 cubeRemove = direction.Dequeue();
+                CubePath.ForEach(cube =>
+                { 
+                    if (cubeRemove == cube.transform.position)
+                    {
+                        Destroy(cube);
+                        CubePath.Remove(cube);
+                    }
+                });
+            }
+
+            directionToGo -= transform.position;
+
+            myMovement.Rotation(directionToGo);
+            myMovement.Movement(directionToGo, myStatus.Speed);
+            myAnimation.Walk(directionToGo.magnitude);
         } else {
             FindPath();
         }
@@ -104,6 +139,8 @@ public class BossController : MonoBehaviour, IDeadly
             if (Vector3.Distance(selected.position, player.position) <= 4.5)
             {
                 stop = true;
+                CubePath.ForEach(cube => Destroy(cube));
+                CubePath = new List<GameObject>();
                 direction.Clear();
                 SetPath(selected);
             }
@@ -116,6 +153,12 @@ public class BossController : MonoBehaviour, IDeadly
         {
             SetPath(path.parent);
         }
+
+        GameObject cubeObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        cubeObject.GetComponent<Collider>().enabled = false;
+        cubeObject.SetActive(false);
+        cubeObject.transform.position = path.position;
+        CubePath.Add(cubeObject);
         direction.Enqueue(path.position);
     }
 
