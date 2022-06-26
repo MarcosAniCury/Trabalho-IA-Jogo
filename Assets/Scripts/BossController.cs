@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.AI;
 
 public class Vertex {
     public Vector3 position { get; set; }
@@ -31,6 +29,9 @@ public class BossController : MonoBehaviour, IDeadly
     //Public vars
     public int DamageCause = 40;
     public GameObject MedKitPrefab;
+    
+    //Private vars
+    float timeToStuck;
 
     //COMPONENTs
     Transform player;
@@ -44,6 +45,7 @@ public class BossController : MonoBehaviour, IDeadly
 
     private void Start()
     {
+        timeToStuck = 0;
         debugController = FindObjectOfType(typeof(debugController)) as debugController;
         CubePath = new List<GameObject>();
         direction = new Queue<Vector3>();
@@ -68,12 +70,15 @@ public class BossController : MonoBehaviour, IDeadly
                 CubePath.ForEach(cube => cube.SetActive(false));
             }
         }
+
+        timeToStuck += Time.deltaTime;
         
-        if (direction.Count > 0)
+        if (direction.Count > 0 && timeToStuck <= Constants.BOSS_TIME_TO_CONSIDER_STUCK)
         {
             Vector3 directionToGo = direction.Peek();
-            if (Vector3.Distance(directionToGo, transform.position) <= 3)
+            if (Vector3.Distance(directionToGo, transform.position) <= Constants.BOSS_ERRO_RATE_DISTANCE)
             {
+                timeToStuck = 0;
                 Vector3 cubeRemove = direction.Dequeue();
                 CubePath.ForEach(cube =>
                 { 
@@ -87,10 +92,15 @@ public class BossController : MonoBehaviour, IDeadly
 
             directionToGo -= transform.position;
 
+            bool isAttacking = Vector3.Distance(transform.position, player.transform.position) <= Constants.BOSS_RANGE_TO_ATTACK_PLAYER;
+            myAnimation.Attack(isAttacking);
+
             myMovement.Rotation(directionToGo);
             myMovement.Movement(directionToGo, myStatus.Speed);
             myAnimation.Walk(directionToGo.magnitude);
-        } else {
+        } else
+        {
+            timeToStuck = 0;
             FindPath();
         }
     }

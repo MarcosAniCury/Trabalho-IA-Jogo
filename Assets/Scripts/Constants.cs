@@ -49,4 +49,9 @@ public class Constants : MonoBehaviour
     
     //Boss Generate
     public const int BOSS_GENERATE_TIME_BETWEEN_GENERATE = 60;
+    
+    //Boss
+    public const float BOSS_TIME_TO_CONSIDER_STUCK = 3;
+    public const float BOSS_ERRO_RATE_DISTANCE = 3;
+    public const float BOSS_RANGE_TO_ATTACK_PLAYER = 2.5F;
 }
