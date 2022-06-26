@@ -34,8 +34,8 @@ public class ZombieController : MonoBehaviour, IDeadly
         lineToPoint = new GameObject();
         lineObjectToPoint = lineToPoint.AddComponent<LineRenderer>();
         lineObjectToPoint.material = new Material(Shader.Find("Sprites/Default"));
-        lineObjectToPoint.startColor = Color.red;
-        lineObjectToPoint.endColor = Color.red;
+        lineObjectToPoint.startColor = Color.magenta;
+        lineObjectToPoint.endColor = Color.magenta;
         lineToPoint.SetActive(false);
 
         lineToPlayer = new GameObject();
